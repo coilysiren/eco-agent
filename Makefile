@@ -12,7 +12,7 @@ name ?= $(shell cat config.yml | yq e '.name')
 name-dashed ?= $(subst /,-,$(name))
 name-short ?= $(shell echo $(name) | cut -d/ -f2)
 git-hash ?= $(shell git rev-parse HEAD)
-image-url ?= ghcr.io/$(name)/$(name-short):$(git-hash)
+image-url ?= ghcr.io/$(name):$(git-hash)
 
 help:
 	@awk '/^## / \

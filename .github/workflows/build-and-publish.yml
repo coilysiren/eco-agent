@@ -18,9 +18,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - run: name=${{ github.event.repository.name }} make build
-      - run: docker tag ${{ github.event.repository.name }}:latest ghcr.io/${{ github.repository }}/${{ github.event.repository.name }}:${{ github.sha }}
-      - run: docker push ghcr.io/${{ github.repository }}/${{ github.event.repository.name }}:${{ github.sha }}
+      - run: make build
+      - run: make .publish
+      - run: docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
   deploy:
     runs-on: ubuntu-latest
     needs: build-publish
