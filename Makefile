@@ -21,6 +21,14 @@ help:
 		{printf "%-30s %s\n", $$1, c; c=0} \
 			END { print c }' $(MAKEFILE_LIST)
 
+## build the project inside of a virtual environment, this is for local development
+build-venv:
+	poetry config virtualenvs.in-project true
+	poetry lock
+	poetry self add poetry-plugin-export
+	poetry export -f requirements.txt --output requirements.txt --without-hashes --with dev
+	pip install -r requirements.txt
+
 ## build project inside of a docker container
 build:
 	docker build \
