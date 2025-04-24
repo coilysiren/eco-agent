@@ -31,12 +31,10 @@ build:
 		-t $(name):latest \
 		.
 
-.publish:
+## publish the application docker image to the registry
+publish:
 	docker tag $(name):$(git-hash) $(image-url)
 	docker push $(image-url)
-
-## publish the docker image to the registry
-publish: build .publish
 
 ## deploy the docker registry secret utilized by the application
 deploy-secrets-docker-repo:
@@ -50,17 +48,13 @@ deploy-secrets-docker-repo:
 		--docker-password=$(github-token) \
 		--dry-run=client -o yaml | kubectl apply -f -
 
-.deploy:
+deploy:
 	-@kubectl create namespace $(name-dashed)
-	$(eval github-token := $(shell aws ssm get-parameter --name "/github/pat" --with-decryption --query "Parameter.Value" --output text))
 	env \
 		NAME=$(name-dashed) \
 		DNS_NAME=$(dns-name) \
 		IMAGE=$(image-url) \
 		envsubst < deploy/main.yml | kubectl apply -f -
-
-## deploy the application to the cluster
-deploy: publish .deploy
 
 ## run project on your plain old machine. see also: run-docker
 run-native:
