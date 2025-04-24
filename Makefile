@@ -35,14 +35,12 @@ build:
 	docker push $(image-url)
 
 ## publish the docker image to the registry
-publish: build-docker .publish
+publish: build .publish
 
 ## deploy the docker registry secret utilized by the application
 deploy-secrets-docker-repo:
 	-@kubectl create namespace $(name-dashed)
 	$(eval github-token := $(shell aws ssm get-parameter --name "/github/pat" --with-decryption --query "Parameter.Value" --output text))
-	# test the token
-	echo $(github-token) | docker login ghcr.io -u $(name) --password-stdin
 	# create the secret
 	kubectl create secret docker-registry docker-registry \
 		--namespace="$(name-dashed)" \
@@ -53,6 +51,7 @@ deploy-secrets-docker-repo:
 
 .deploy:
 	-@kubectl create namespace $(name-dashed)
+	$(eval github-token := $(shell aws ssm get-parameter --name "/github/pat" --with-decryption --query "Parameter.Value" --output text))
 	env \
 		NAME=$(name-dashed) \
 		DNS_NAME=$(dns-name) \
