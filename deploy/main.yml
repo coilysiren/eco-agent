@@ -18,7 +18,7 @@ spec:
         - name: docker-registry
       containers:
         - name: ${NAME}
-          image: nginx
+          image: ${IMAGE}
           resources:
             limits:
               cpu: 1000m
