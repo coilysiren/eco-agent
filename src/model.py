@@ -2,7 +2,7 @@ import os
 import requests
 
 
-def request(prompt: str, n_predict: int = 128) -> str:
+def request(prompt: str, n_predict: int = 64) -> str:
     IS_PRODUCTION = os.path.exists("/var/run/secrets/kubernetes.io/serviceaccount/token")
     response = requests.post(
         (

@@ -31,6 +31,22 @@ async def trigger_error(request: fastapi.Request):
     return 1 / 0
 
 
+@app.get("/subscribe")
+@limiter.limit("1/second")
+async def subscribe(request: fastapi.Request):
+    ssm = boto3.client("ssm")
+    token = ssm.get_parameter(Name="/eco/discord-bot-token", WithDecryption=True)["Parameter"]["Value"]
+    server_id = ssm.get_parameter(Name="/discord/server-id", WithDecryption=True)["Parameter"]["Value"]
+    bot_channel_id = ssm.get_parameter(Name="/discord/channel/bots", WithDecryption=True)["Parameter"]["Value"]
+
+    (client, guild) = await discord.Client.init(token, int(server_id))
+
+    channel = guild.get_channel(int(bot_channel_id))
+    client.subscribe(channel)
+
+    return {"status": "ok"}
+
+
 @app.get("/health")
 @app.get("/health/")
 @limiter.limit("1/second")
