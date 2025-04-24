@@ -59,4 +59,4 @@ jobs:
               client-certificate-data: ${{ secrets.K8S_CLIENT_CERT_DATA }}
               client-key-data: ${{ secrets.K8S_CLIENT_KEY_DATA }}
           EOF
-      - run: make .deploy
+      - run: make deploy
