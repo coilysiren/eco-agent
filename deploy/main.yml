@@ -36,6 +36,8 @@ kind: Service
 metadata:
   name: ${NAME}-service
   namespace: ${NAME}
+  annotations:
+    tailscale.com/expose: "true"
 spec:
   type: ClusterIP
   selector:
