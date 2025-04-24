@@ -18,7 +18,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - run: name=eco-agent make .build-docker
+      - run: name=eco-agent make build
       - run: docker tag eco-agent:latest ghcr.io/${{ github.repository }}/eco-agent:${{ github.sha }}
       - run: docker push ghcr.io/${{ github.repository }}/eco-agent:${{ github.sha }}
   deploy:
