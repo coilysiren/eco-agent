@@ -37,9 +37,6 @@ build:
 ## publish the docker image to the registry
 publish: build-docker .publish
 
-## deploy the namespace for the application
-deploy-namespace:
-
 ## deploy the docker registry secret utilized by the application
 deploy-secrets-docker-repo:
 	-@kubectl create namespace $(name-dashed)
@@ -65,12 +62,10 @@ deploy-secrets-docker-repo:
 ## deploy the application to the cluster
 deploy: publish .deploy
 
-## run project on your plain old machine
-#  see also: run-docker
+## run project on your plain old machine. see also: run-docker
 run-native:
 	poetry run uvicorn src.main:app --reload --port 4000 --host 0.0.0.0
 
-## run project inside of a docker container
-#  see also: run-native
+## run project inside of a docker container. see also: run-native
 run-docker:
 	docker run --expose 4000 -it --rm $(name):latest
