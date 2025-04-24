@@ -20,7 +20,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - run: make build
       - run: make .publish
-      - run: docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
   deploy:
     runs-on: ubuntu-latest
     needs: build-publish
