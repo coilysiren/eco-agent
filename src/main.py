@@ -1,5 +1,3 @@
-import os
-
 import fastapi
 import opentelemetry.instrumentation.fastapi as otel_fastapi
 import structlog
@@ -9,6 +7,7 @@ import requests
 
 from . import application
 from . import discord
+from . import model
 
 (app, limiter) = application.init()
 
@@ -17,9 +16,6 @@ structlog.configure(
         structlog.processors.JSONRenderer(sort_keys=True),
     ]
 )
-
-
-IS_PRODUCTION = os.path.exists("/var/run/secrets/kubernetes.io/serviceaccount/token")
 
 
 @app.get("/")
@@ -44,27 +40,28 @@ async def health(request: fastapi.Request):
     server_id = ssm.get_parameter(Name="/discord/server-id", WithDecryption=True)["Parameter"]["Value"]
     bot_channel_id = ssm.get_parameter(Name="/discord/channel/bots", WithDecryption=True)["Parameter"]["Value"]
 
-    response = requests.post(
-        (
-            "http://llama.llama.cluster.local:8080/completion"
-            if IS_PRODUCTION
-            else "http://llama-llama-service:8080/completion"
-        ),
-        json={"prompt": "Is the model healthy?", "n_predict": 128},
-        timeout=30,
-    )
-
-    if response.status_code != 200:
-        return {"status": "error", "message": "Model is not healthy"}
-
-    content = response.json()["content"]
+    model.request("Is the model healthy?")
 
     (_, guild) = await discord.Client.init(token, int(server_id))
 
     channel = guild.get_channel(int(bot_channel_id))
-    await channel.send(content)
+    await channel.send("model is healthy")
 
     return {"status": "ok"}
+
+
+@app.post("/chat")
+@app.post("/chat/")
+@limiter.limit("1/second")
+async def chat(request: fastapi.Request):
+    # get the prompt from the request body
+    data = await request.json()
+    prompt = data["prompt"]
+
+    # call the model
+    response = model.request(prompt)
+
+    return {"content": response}
 
 
 otel_fastapi.FastAPIInstrumentor.instrument_app(app)
