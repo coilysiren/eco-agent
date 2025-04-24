@@ -26,6 +26,16 @@ spec:
           env:
             - name: PORT
               value: "80"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: aws_secret_access_key
           ports:
             - containerPort: 80
       restartPolicy: Always

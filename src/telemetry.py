@@ -1,6 +1,5 @@
 import os
 
-import dotenv
 import opentelemetry.exporter.otlp.proto.http.trace_exporter as otel_trace_exporter
 import opentelemetry.sdk.resources as otel_resources
 import opentelemetry.sdk.trace as otel_sdk_trace
@@ -9,8 +8,6 @@ import opentelemetry.trace as otel_trace
 import sentry_sdk
 import sentry_sdk.integrations.fastapi as sentry_fastapi
 import sentry_sdk.integrations.starlette as sentry_starlette
-
-dotenv.load_dotenv()
 
 
 class Telemetry(object):
