@@ -26,7 +26,7 @@ spec:
           env:
             - name: PORT
               value: "80"
-            - name: AWS_REGION
+            - name: AWS_DEFAULT_REGION
               value: us-east-1
             - name: AWS_ACCESS_KEY_ID
               valueFrom:

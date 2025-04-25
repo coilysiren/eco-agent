@@ -1,5 +1,5 @@
 import asyncio
-
+import traceback
 import fastapi
 import fastapi.middleware.cors as cors
 import opentelemetry.trace as otel_trace
@@ -117,7 +117,9 @@ class ErrorHandlingMiddleware(middleware.BaseHTTPMiddleware):
                 self._capture_exception(span, exc)
 
                 message = "internal server error"
-                logger.error(message, exc=exc, status_code=500)
+                logger.error(
+                    message, exc=exc, traceback=traceback.format_exc(), status_code=500
+                )
                 return starlette.responses.JSONResponse(
                     {"detail": message, "error": str(exc)},
                     status_code=500,
