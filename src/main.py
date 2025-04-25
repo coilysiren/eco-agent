@@ -1,12 +1,13 @@
 import fastapi
+import fastapi.responses
 import opentelemetry.instrumentation.fastapi as otel_fastapi
 import structlog
 import structlog.processors
 import boto3
-import requests
+import discord
 
+from . import discord as _discord
 from . import application
-from . import discord
 from . import model
 
 (app, limiter) = application.init()
@@ -16,6 +17,8 @@ structlog.configure(
         structlog.processors.JSONRenderer(sort_keys=True),
     ]
 )
+
+discord_client = _discord.Client()
 
 
 @app.get("/")
@@ -31,18 +34,29 @@ async def trigger_error(request: fastapi.Request):
     return 1 / 0
 
 
-@app.get("/subscribe")
+@app.post("/subscribe")
+@app.post("/subscribe/")
 @limiter.limit("1/second")
 async def subscribe(request: fastapi.Request):
     ssm = boto3.client("ssm")
-    token = ssm.get_parameter(Name="/eco/discord-bot-token", WithDecryption=True)["Parameter"]["Value"]
-    server_id = ssm.get_parameter(Name="/discord/server-id", WithDecryption=True)["Parameter"]["Value"]
-    bot_channel_id = ssm.get_parameter(Name="/discord/channel/bots", WithDecryption=True)["Parameter"]["Value"]
+    token_response = ssm.get_parameter(Name="/eco/discord-bot-token", WithDecryption=True)
+    token = token_response["Parameter"]["Value"]
 
-    (client, guild) = await discord.Client.init(token, int(server_id))
+    data = await request.json()
+    channel_id = data["channel"]
+    server_id = data["server"]
 
-    channel = guild.get_channel(int(bot_channel_id))
-    client.subscribe(channel)
+    # The client is a thread-safe singleton,
+    # so we can init it once and then use it for all requests.
+    client = await discord_client.init(token, int(server_id))
+
+    # get the channel, if it doesn't exist, return a 400, if it exists, subscribe to it
+    channel = client.get_channel(int(channel_id))
+    if not channel:
+        return fastapi.responses.JSONResponse(
+            {"detail": "channel not found"}, status_code=400
+        )
+    client.subscribe(channel_id)
 
     return {"status": "ok"}
 
@@ -52,16 +66,20 @@ async def subscribe(request: fastapi.Request):
 @limiter.limit("1/second")
 async def health(request: fastapi.Request):
     ssm = boto3.client("ssm")
-    token = ssm.get_parameter(Name="/eco/discord-bot-token", WithDecryption=True)["Parameter"]["Value"]
-    server_id = ssm.get_parameter(Name="/discord/server-id", WithDecryption=True)["Parameter"]["Value"]
-    bot_channel_id = ssm.get_parameter(Name="/discord/channel/bots", WithDecryption=True)["Parameter"]["Value"]
+    token = ssm.get_parameter(Name="/eco/discord-bot-token", WithDecryption=True)
+    token = token["Parameter"]["Value"]
+    server_id = ssm.get_parameter(Name="/discord/server-id", WithDecryption=True)
+    server_id = server_id["Parameter"]["Value"]
+    bot_channel_id = ssm.get_parameter(Name="/discord/channel/bots", WithDecryption=True)
+    bot_channel_id = bot_channel_id["Parameter"]["Value"]
 
-    model.request("Is the model healthy?")
+    model.request("model is healthy")
 
-    (_, guild) = await discord.Client.init(token, int(server_id))
+    await discord_client.init(token, int(server_id))
+    channel = discord_client.get_channel(int(bot_channel_id))
 
-    channel = guild.get_channel(int(bot_channel_id))
-    await channel.send("model is healthy")
+    if channel is not None and isinstance(channel, discord.TextChannel):
+        await channel.send("discord bot is healthy")
 
     return {"status": "ok"}
 

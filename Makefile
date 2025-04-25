@@ -44,8 +44,8 @@ publish:
 	docker tag $(name):$(git-hash) $(image-url)
 	docker push $(image-url)
 
-## deploy the docker registry secret utilized by the application
-deploy-secrets-docker-repo:
+## deploy the secrets utilized by the application
+deploy-secrets:
 	-@kubectl create namespace $(name-dashed)
 	$(eval github-token := $(shell aws ssm get-parameter --name "/github/pat" --with-decryption --query "Parameter.Value" --output text))
 	# create the secret
@@ -55,6 +55,9 @@ deploy-secrets-docker-repo:
 		--docker-username=$(name) \
 		--docker-password=$(github-token) \
 		--dry-run=client -o yaml | kubectl apply -f -
+	kubectl get secret aws-credentials -n external-secrets -o yaml | \
+		sed "s/namespace: external-secrets/namespace: $(name-dashed)/" | \
+		kubectl apply -f -
 
 deploy:
 	-@kubectl create namespace $(name-dashed)

@@ -98,7 +98,9 @@ class ErrorHandlingMiddleware(middleware.BaseHTTPMiddleware):
                 except requests.exceptions.JSONDecodeError:
                     message = exc.response.text
                 logger.exception("HTTP error", exc=exc)
-                return starlette.responses.JSONResponse({"detail": message}, status_code=exc.response.status_code)
+                return starlette.responses.JSONResponse(
+                    {"detail": message}, status_code=exc.response.status_code
+                )
 
             # handle any kind of timeout errors, note that we enforce the timeouts
             except asyncio.TimeoutError as exc:
@@ -106,7 +108,9 @@ class ErrorHandlingMiddleware(middleware.BaseHTTPMiddleware):
 
                 message = "request timed out"
                 logger.error(message, exc=exc, status_code=408)
-                return starlette.responses.JSONResponse({"detail": message}, status_code=408)
+                return starlette.responses.JSONResponse(
+                    {"detail": message}, status_code=408
+                )
 
             # handle other exceptions that may occur during request processing
             except Exception as exc:

@@ -29,13 +29,11 @@ spec:
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
-                  namespace: external-secrets
                   name: aws-credentials
                   key: aws_access_key_id
             - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  namespace: external-secrets
                   name: aws-credentials
                   key: aws_secret_access_key
           ports:
