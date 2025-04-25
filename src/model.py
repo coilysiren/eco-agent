@@ -23,7 +23,7 @@ def request(prompt: str, n_predict: int = 128) -> str:
         )
         response = requests.post(
             (
-                "http://llama.llama-service.cluster.local:8080/v1/chat/completions"
+                "http://llama-service.llama.svc.cluster.local:8080/v1/chat/completions"
                 if IS_PRODUCTION
                 else "http://llama-llama-service:8080/v1/chat/completions"
             ),
