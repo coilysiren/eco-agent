@@ -43,20 +43,20 @@ async def subscribe(request: fastapi.Request):
     token = token_response["Parameter"]["Value"]
 
     data = await request.json()
-    channel_id = data["channel"]
-    server_id = data["server"]
+    channel_id = int(data["channel"])
+    server_id = int(data["server"])
 
     # The client is a thread-safe singleton,
     # so we can init it once and then use it for all requests.
-    client = await discord_client.init(token, int(server_id))
+    await discord_client.init(token, server_id)
 
     # get the channel, if it doesn't exist, return a 400, if it exists, subscribe to it
-    channel = client.get_channel(int(channel_id))
+    channel = discord_client.get_channel(channel_id)
     if not channel:
         return fastapi.responses.JSONResponse(
             {"detail": "channel not found"}, status_code=400
         )
-    client.subscribe(channel_id)
+    discord_client.subscribe(channel_id)
 
     return {"status": "ok"}
 

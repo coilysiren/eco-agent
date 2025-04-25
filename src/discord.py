@@ -12,12 +12,12 @@ logger = structlog.get_logger()
 
 class Client(discord.Client):
     """
-    A thread-safe singleton client for the Discord bot.
+    A singleton client for the Discord bot.
     """
 
     _instance: typing.Union["Client", None] = None
-    _init_lock = asyncio.Lock()
     _initialized = False
+    _authorized = False
     _channel_subscriptions: dict[int, bool] = {}
 
     def __new__(cls, *args, **kwargs):
@@ -31,6 +31,8 @@ class Client(discord.Client):
 
             intents = discord.Intents.default()
             intents.message_content = True
+            intents.guilds = True
+            intents.guild_messages = True
 
             super().__init__(*args, intents=intents, **kwargs)
             self._initialized = True
@@ -64,6 +66,7 @@ class Client(discord.Client):
                     logger.info(
                         "on_message: channel not subscribed",
                         channel=message.channel.id,
+                        subscribed=self._channel_subscriptions,
                     )
                     return
 
@@ -90,25 +93,21 @@ class Client(discord.Client):
         self._channel_subscriptions[channel_id] = True
 
     async def init(self, token: str, server_id: int):
-        """
-        Initialize the client, connect to the server and start the bot
-        This is a thread-safe singleton, so it can be called multiple times
-        """
         logger.info("initializing discord client authorization", server_id=server_id)
 
-        async with self._init_lock:
-            if self._instance is not None:
-                return self._instance
+        if self._authorized:
+            return
 
-            self._instance = self  # Store early to avoid races
+        # Start in background
+        asyncio.create_task(self.start(token))
 
-            # Start in background
-            asyncio.create_task(self.start(token))
+        # Wait until ready
+        while not self.is_ready():
+            await asyncio.sleep(0.1)
 
-            # Wait until ready
-            while not self.is_ready():
-                await asyncio.sleep(0.1)
+        guild = self.get_guild(server_id)
+        if not guild:
+            raise ValueError(f"Could not find guild with ID {server_id}")
 
-            guild = self.get_guild(server_id)
-            if not guild:
-                raise ValueError(f"Could not find guild with ID {server_id}")
+        logger.info("discord client initialized", guild=guild)
+        self._authorized = True

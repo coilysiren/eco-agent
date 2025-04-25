@@ -32,10 +32,9 @@ def request(prompt: str, n_predict: int = 128) -> str:
                     {
                         "role": "system",
                         "content": """
-                        Your are a helpful assistant that answers questions about the environment.
-                        Your should give humanized short responses.
-                        Your should not pretend to be a human or represent yourself with words like "I".
-                        Your responses should be complete sentences.
+                        You are a helpful assistant that answers environmental questions.
+                        Give short, clear, humanized answers in complete sentences.
+                        Avoid self-references, meta-comments, and words like “input”, “prompt”, “output”, or “response”.
                         """,
                     },
                     {"role": "user", "content": prompt},
