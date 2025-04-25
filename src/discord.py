@@ -49,10 +49,8 @@ class Client(discord.Client):
                     text=message.content,
                 )
 
-                if message.author == self.user:
-                    logger.info(
-                        "on_message: message from bot itself", author=message.author
-                    )
+                if message.author.bot:
+                    logger.info("on_message: message from a bot", author=message.author)
                     return
 
                 if "?" not in message.content:

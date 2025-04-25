@@ -26,6 +26,8 @@ spec:
           env:
             - name: PORT
               value: "80"
+            - name: AWS_REGION
+              value: us-east-1
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
