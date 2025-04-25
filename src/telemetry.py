@@ -1,5 +1,4 @@
-import os
-
+import boto3
 import opentelemetry.exporter.otlp.proto.http.trace_exporter as otel_trace_exporter
 import opentelemetry.sdk.resources as otel_resources
 import opentelemetry.sdk.trace as otel_sdk_trace
@@ -15,7 +14,9 @@ class Telemetry(object):
 
     initalized = False
     tracer: otel_trace.Tracer
-    resource: otel_resources.Resource = otel_resources.Resource.create({"service.name": "backend"})
+    resource: otel_resources.Resource = otel_resources.Resource.create(
+        {"service.name": "eco-agent"}
+    )
 
     def __new__(cls):
         if not cls.initalized:
@@ -25,12 +26,18 @@ class Telemetry(object):
         return cls
 
     def create_tracer(self):
+        # ssm = boto3.client("ssm")
+        # honeycomb_response = ssm.get_parameter(
+        #     Name="/honeycomb-api-key", WithDecryption=True
+        # )
+        # honeycomb_api_key = honeycomb_response["Parameter"]["Value"]
+
         otel_trace_provider = otel_sdk_trace.TracerProvider(resource=self.resource)
         otel_processor = otel_export.BatchSpanProcessor(
             otel_trace_exporter.OTLPSpanExporter(
                 endpoint="https://api.honeycomb.io/v1/traces",
                 headers={
-                    "x-honeycomb-team": os.getenv("HONEYCOMB_API_KEY"),
+                    "x-honeycomb-team": "TODO",
                 },
             )
         )
@@ -40,8 +47,13 @@ class Telemetry(object):
         return tracer
 
     def sentry_init(self):
+        ssm = boto3.client("ssm")
+        sentry_response = ssm.get_parameter(
+            Name="/sentry-dsn/eco-agent", WithDecryption=True
+        )
+        sentry_dsn = sentry_response["Parameter"]["Value"]
         sentry_sdk.init(
-            dsn=os.getenv("SENTRY_DSN"),
+            dsn=sentry_dsn,
             integrations=[
                 sentry_starlette.StarletteIntegration(),
                 sentry_fastapi.FastApiIntegration(),
