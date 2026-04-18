@@ -1,3 +1,7 @@
+[![Eco by Strange Loop Games](https://cdn.cloudflare.steamstatic.com/steam/apps/382310/header.jpg)](https://store.steampowered.com/app/382310/Eco/)
+
+<sub>Banner: Steam header for [Eco](https://store.steampowered.com/app/382310/Eco/) by [Strange Loop Games](https://strangeloopgames.com/). Used here for attribution; not my artwork.</sub>
+
 # eco-agent
 
 A Python FastAPI service that pairs with my [Eco](https://play.eco/) server ("Eco via Sirens") to provide a Discord-side companion bot plus a small REST surface. It's the "agent" in the sense of a long-running daemon that bridges Discord, the Eco server, and internal tooling. Not an LLM agent, though it does call out to a self-hosted Llama service for environmental Q&A via a `/prompt` endpoint.
