@@ -1,6 +1,6 @@
 [![Eco by Strange Loop Games](https://cdn.cloudflare.steamstatic.com/steam/apps/382310/header.jpg)](https://store.steampowered.com/app/382310/Eco/)
 
-<sub>Banner: Steam header for [Eco](https://store.steampowered.com/app/382310/Eco/) by [Strange Loop Games](https://strangeloopgames.com/). Used here for attribution; not my artwork.</sub>
+<sub>Banner: Steam header for Eco by [Strange Loop Games](https://strangeloopgames.com/). Used here for attribution; not my artwork.</sub>
 
 # eco-agent
 
@@ -8,4 +8,4 @@ A Python FastAPI service that pairs with my [Eco](https://play.eco/) server ("Ec
 
 The service runs on my k3s homelab at `eco.coilysiren.me` and is instrumented end-to-end: OpenTelemetry traces to Honeycomb, Sentry error reporting, structlog JSON logs, and SlowAPI rate limiting. Credentials (Discord bot token, Llama endpoint config) are pulled from AWS SSM at runtime so nothing sensitive lives in the image. Deployment is Docker plus a deploy script in `deploy/`, driven by the top-level `Makefile`.
 
-This repo is part of a small family of public tooling around [Eco](https://play.eco/), a multiplayer survival and simulation game by [Strange Loop Games](https://strangeloopgames.com/). See also [eco-cycle-prep](https://github.com/coilysiren/eco-cycle-prep) for per-cycle server prep (worldgen rolls, Discord announcements, mod sync) and [eco-mods-public](https://github.com/coilysiren/eco-mods-public) for my published C# gameplay mods. The game's official modkit lives at [StrangeLoopGames/EcoModKit](https://github.com/StrangeLoopGames/EcoModKit), the modding docs are at [docs.play.eco](https://docs.play.eco/) and [wiki.play.eco/en/Modding](https://wiki.play.eco/en/Modding), and [Eco-DiscordLink/EcoDiscordPlugin](https://github.com/Eco-DiscordLink/EcoDiscordPlugin) is the canonical in-game to Discord chat relay.
+See also [eco-cycle-prep](https://github.com/coilysiren/eco-cycle-prep) for per-cycle server prep (worldgen rolls, Discord announcements, mod sync) and [eco-mods-public](https://github.com/coilysiren/eco-mods-public) for my published C# gameplay mods. The game's official modkit lives at [StrangeLoopGames/EcoModKit](https://github.com/StrangeLoopGames/EcoModKit), modding docs are at [docs.play.eco](https://docs.play.eco/) and [wiki.play.eco/en/Modding](https://wiki.play.eco/en/Modding), and [Eco-DiscordLink/EcoDiscordPlugin](https://github.com/Eco-DiscordLink/EcoDiscordPlugin) is the canonical in-game to Discord chat relay.
